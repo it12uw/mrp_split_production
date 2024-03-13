@@ -22,20 +22,26 @@
                     <group name="quantity_split">
                         <field name="quantity_to_split" placeholder="Input number of split here "/>
                     </group>
-                    <footer>
-                        <button name="action_split_workorder" string="Split" type="object" class="btn btn-outline-info"/>
-                        <button class="btn btn-outline-danger" string="Cancel" special="cancel"/>
-                    </footer>
                         <notebook>
-                            <field name="production_detailed_vals_ids" invisible="counter == 0">
-                                <tree editable="top">
-                                    <field name="date"/>
-                                    <field name="user_id"/>
-                                    <field name="quantity"/>
-                                </tree>
-                            </field>
+                            <page string="Split Details">
+                                <field name="production_detailed_vals_ids" editable="bottom">
+                                    <tree string="Split Details">
+                                        <field name="date"/>
+                                        <field name="user_id"/>
+                                        <field name="quantity"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Other Information">
+                                <!-- Write code here if there's an update or something want to be added   -->
+                            </page>
                         </notebook>
-                    </page>
+                        <field name="production_split_multi_id" invisible="1"/>
+                        <field name="valid_details" invisible="1"/>
+                        <footer>
+                            <button class="btn-info" name="action_split_workorder" string="Split Work Order" type="object" icon="fa-scissors"/>
+                            <button class="btn-danger" string="Cancel Split" special="cancel" icon="fa-ban"/> 
+                        </footer>
                 </form>
             </field>
         </record>
