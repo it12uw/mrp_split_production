@@ -34,7 +34,7 @@ class MrpWorkorderSplit(models.TransientModel):
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'mrp.production',
-            'view_mode': 'tree,form',
+            'view_mode': 'form',
             'res_id': new_workorders,
             'target': 'current',
         }

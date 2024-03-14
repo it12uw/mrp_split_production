@@ -16,7 +16,6 @@
                         <field name="product_qty"/>
                     </group>
                     <div class="o_row">
-                        <!-- <span><field name="product_qty"/></span> -->
                         <span><field name="product_uom_id" groups="uom.group_uom"/></span>
                     </div>
                     <group name="quantity_split">
@@ -36,8 +35,6 @@
                                 <!-- Write code here if there's an update or something want to be added   -->
                             </page>
                         </notebook>
-                        <field name="production_split_multi_id" invisible="1"/>
-                        <field name="valid_details" invisible="1"/>
                         <footer>
                             <button class="btn-info" name="action_split_workorder" string="Split Work Order" type="object" icon="fa-scissors"/>
                             <button class="btn-danger" string="Cancel Split" special="cancel" icon="fa-ban"/> 
