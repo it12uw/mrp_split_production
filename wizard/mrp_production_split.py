@@ -1,52 +1,37 @@
-from odoo import models, fields, api
-from odoo.exceptions import UserError, ValidationError
-from odoo.tools import float_compare, float_round, float_is_zero, format_datetime
+from odoo import api, fields, models
+from odoo.tools import float_round, float_compare
 
-class MrpWorkorderSplit(models.TransientModel):
+
+class MrpProductionSplitMulti(models.TransientModel):
+    _name = 'mrp.production.split.multi'
+    _description = "Wizard to Split Multiple Productions"
+
+    production_ids = fields.One2many('mrp.production.split', 'production_split_multi_id', 'Productions To Split')
+
+
+class MrpProductionSplit(models.TransientModel):
     _name = 'mrp.production.split'
-    _description = 'Split Work Order'
-    
+    _description = "Wizard to Split a Production"
+
     production_split_multi_id = fields.Many2one('mrp.production.split.multi', 'Split Productions')
     production_id = fields.Many2one('mrp.production', 'Manufacturing Order')
     product_id = fields.Many2one(related='production_id.product_id')
     product_qty = fields.Float(related='production_id.product_qty')
     product_uom_id = fields.Many2one(related='production_id.product_uom_id')
     production_capacity = fields.Float(related='production_id.production_capacity')
-    quantity_to_split = fields.Integer(string='Split WO Into', default=0, compute="_compute_counter",store=True, readonly=False)
-    production_detailed_vals_ids = fields.One2many('mrp.production.split.line', 'mrp_production_split_id','Split Details', compute="_compute_details", store=True, readonly=False)
+    quantity_to_split = fields.Integer(
+        "Split Into ?", default=0, compute="_compute_quantity_to_split",
+        store=True, readonly=False)
+    production_detailed_vals_ids = fields.One2many(
+        'mrp.production.split.line', 'mrp_production_split_id',
+        'Split Details', compute="_compute_details", store=True, readonly=False)
     valid_details = fields.Boolean("Valid", compute="_compute_valid_details")
 
-    # Action Tombol Split
-    def action_split_workorder(self):
-        new_workorders = []
-        total_qty_to_produce = self.production_id.product_qty  # Total jumlah yang akan diproduksi
-        for i in range(int(self.quantity_to_split)):
-            new_name = f"{self.production_id.name} - {i + 1:04d}"
-            new_workorder = self.production_id.copy(default={'name': new_name, 'qty_producing': 1})
-            new_workorders.append(new_workorder.id)
-        self.production_id.qty_producing -= self.quantity_to_split
-        
-        # Perbarui nilai product_qty pada setiap Work Order hasil split
-        qty_per_workorder = total_qty_to_produce / self.quantity_to_split
-        for new_workorder in self.env['mrp.production'].browse(new_workorders):
-            new_workorder.product_qty = qty_per_workorder
-
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'mrp.production',
-            'view_mode': 'form',
-            'res_id': new_workorders,
-            'target': 'current',
-        }
-
-
-    # Action Counter Split Number
     @api.depends('production_detailed_vals_ids')
-    def _compute_counter(self):
+    def _compute_quantity_to_split(self):
         for wizard in self:
             wizard.quantity_to_split = len(wizard.production_detailed_vals_ids)
 
-    # Compute menampilkan details ke dalam notebook
     @api.depends('quantity_to_split')
     def _compute_details(self):
         for wizard in self:
@@ -70,26 +55,52 @@ class MrpWorkorderSplit(models.TransientModel):
             }))
             wizard.production_detailed_vals_ids = commands
 
-
     @api.depends('production_detailed_vals_ids')
     def _compute_valid_details(self):
         self.valid_details = False
         for wizard in self:
             if wizard.production_detailed_vals_ids:
-                wizard.valid_details = float_compare(wizard.product_qty, sum(wizard.production_detailed_vals_ids.mapped('quantity')), precision_rounding=wizard.product_uom_id.rounding) == 0   
+                wizard.valid_details = float_compare(wizard.product_qty, sum(wizard.production_detailed_vals_ids.mapped('quantity')), precision_rounding=wizard.product_uom_id.rounding) == 0
 
-class MrpProductionSplitMulti(models.TransientModel):
-    _name = 'mrp.production.split.multi'
-    _description = "Wizard to Split Multiple Productions"
+    def action_split(self):
+        # Mengambil jumlah yang ingin di-split untuk setiap Work Order
+        quantities = [detail.quantity for detail in self.production_detailed_vals_ids]
 
-    production_ids = fields.One2many('mrp.production.split', 'production_split_multi_id', 'Productions To Split')
+        # Memanggil metode _split_productions dengan jumlah yang ingin di-split
+        productions = self.production_id._split_productions(quantities)
+
+        for production, detail in zip(productions, self.production_detailed_vals_ids):
+            production.user_id = detail.user_id
+            production.date_start = detail.date
+
+        if self.production_split_multi_id:
+            saved_production_split_multi_id = self.production_split_multi_id.id
+            self.production_split_multi_id.production_ids = [(5, 0, 0)]
+            action = self.env['ir.actions.actions']._for_xml_id('split_production.action_mrp_production_split_multi')
+            action['res_id'] = saved_production_split_multi_id
+            return action
+
+    def action_prepare_split(self):
+        action = self.env['ir.actions.actions']._for_xml_id('split_production.action_mrp_production_split')
+        action['res_id'] = self.id
+        return action
+
+    def action_return_to_list(self):
+        self.production_detailed_vals_ids = [(5, 0, 0)]
+        self.quantity_to_split = 0
+        action = self.env['ir.actions.actions']._for_xml_id('split_production.action_mrp_production_split_multi')
+        action['res_id'] = self.production_split_multi_id.id
+        return action
     
+
 class MrpProductionSplitLine(models.TransientModel):
-    _name='mrp.production.split.line'
-    _description='Mrp Production Split Line'    
-    
-    mrp_production_split_id = fields.Many2one( 'mrp.production.split', 'Split Production', required=True, ondelete="cascade")
+    _name = 'mrp.production.split.line'
+    _description = "Split Production Detail"
+
+    mrp_production_split_id = fields.Many2one(
+        'mrp.production.split', 'Split Production', required=True, ondelete="cascade")
     quantity = fields.Float('Quantity To Produce', digits='Product Unit of Measure', required=True)
-    user_id = fields.Many2one('res.users', 'Responsible',domain=lambda self: [('groups_id', 'in', self.env.ref('mrp.group_mrp_user').id)])
+    user_id = fields.Many2one(
+        'res.users', 'Responsible',
+        domain=lambda self: [('groups_id', 'in', self.env.ref('mrp.group_mrp_user').id)])
     date = fields.Datetime('Schedule Date')
-      
