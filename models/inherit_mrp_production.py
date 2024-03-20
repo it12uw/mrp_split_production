@@ -136,14 +136,12 @@ class MrpProduction(models.Model):
             for i in range(len(quantities)):
                 # Tentukan jumlah yang akan di-split pada Work Order saat ini
                 qty_to_create = min(qty_per_work_order, remaining_qty)
-                
+
                 # Buat Work Order baru dengan jumlah yang ditentukan
                 new_work_order = production.copy(default={'product_qty': qty_to_create, 'state': 'confirmed'})
                 new_work_orders += new_work_order
-
                 # Kurangi sisa jumlah yang belum di-split
                 remaining_qty -= qty_to_create
-
         return new_work_orders
 
 
