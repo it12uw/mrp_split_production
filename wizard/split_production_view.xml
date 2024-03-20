@@ -22,7 +22,7 @@
                 </form>
             </field>
         </record>
-        
+
         <record id="view_mrp_production_split_form" model="ir.ui.view">
             <field name="name">Split Production</field>
             <field name="model">mrp.production.split</field>
@@ -41,35 +41,36 @@
                             </div>
                         </group>
                         <group>
-                            <field name="quantity_to_split"/>
+                            <field name="counter"/>
                         </group>
                     </group>
                     <field name="production_detailed_vals_ids">
                         <tree editable="top">
-                            <!-- <field name="date"/> -->
+                            <field name="date"/>
                             <field name="user_id"/>
                             <field name="quantity"/>
                         </tree>
                     </field>
-                    <field name="production_split_multi_id" invisible="1"/>
-                    <field name="valid_details" invisible="1"/>
+                    <field name="production_split_multi_id"/>
+                    <field name="valid_details"/>
                     <footer>
-                        <button string="Split" class="btn btn-outline-primary" type="object" name="action_split" data-hotkey="q" icon="fa-scissors"/>
-                        <button string="Discard" class="btn btn-outline-info" special="cancel" data-hotkey="x"/>
+                        <button string="Split" class="btn-primary" type="object" name="action_split" data-hotkey="q" />
+                        <button string="Discard" class="btn-secondary" special="cancel" data-hotkey="x" />
+                        <button string="Discard" class="btn-secondary" type="object" name="action_return_to_list" data-hotkey="x"/>
                     </footer>
                 </form>
             </field>
         </record>
 
         <record id="action_mrp_production_split_multi" model="ir.actions.act_window">
-            <field name="name">Split Work Order</field>
+            <field name="name">Split productions</field>
             <field name="res_model">mrp.production.split.multi</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>
         </record>
 
         <record id="action_mrp_production_split" model="ir.actions.act_window">
-            <field name="name">Split Work Order</field>
+            <field name="name">Split production</field>
             <field name="res_model">mrp.production.split</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>

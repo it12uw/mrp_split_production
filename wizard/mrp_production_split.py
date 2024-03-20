@@ -31,7 +31,7 @@ class MrpProductionSplit(models.TransientModel):
     def _compute_quantity_to_split(self):
         for wizard in self:
             wizard.quantity_to_split = len(wizard.production_detailed_vals_ids)
-
+    
     @api.depends('quantity_to_split')
     def _compute_details(self):
         for wizard in self:
@@ -92,15 +92,11 @@ class MrpProductionSplit(models.TransientModel):
         action['res_id'] = self.production_split_multi_id.id
         return action
     
-
 class MrpProductionSplitLine(models.TransientModel):
     _name = 'mrp.production.split.line'
     _description = "Split Production Detail"
 
-    mrp_production_split_id = fields.Many2one(
-        'mrp.production.split', 'Split Production', required=True, ondelete="cascade")
+    mrp_production_split_id = fields.Many2one('mrp.production.split', 'Split Production', required=True, ondelete="cascade")
     quantity = fields.Float('Quantity To Produce', digits='Product Unit of Measure', required=True)
-    user_id = fields.Many2one(
-        'res.users', 'Responsible',
-        domain=lambda self: [('groups_id', 'in', self.env.ref('mrp.group_mrp_user').id)])
+    user_id = fields.Many2one('res.users', 'Responsible',domain=lambda self: [('groups_id', 'in', self.env.ref('mrp.group_mrp_user').id)])
     date = fields.Datetime('Schedule Date')
