@@ -15,7 +15,7 @@ class MrpProduction(models.Model):
     _inherit = "mrp.production"
 
     production_capacity = fields.Float(compute='_compute_production_capacity', help="Quantity that can be produced with the current stock of components")
-    
+    date=fields.Datetime(string="Date")
 
     """Muncul error mrp.production' object has no attribute 'action_split'" while evaluating
     'action = records.action_split() sehingga kode ini di tambahkan """
@@ -129,6 +129,9 @@ class MrpProduction(models.Model):
             # Hitung jumlah yang akan di-split per Work Order
             qty_per_work_order = production.product_qty / len(quantities)
 
+            # Simpan referensi MO yang akan digunakan pada Work Order
+            reference_mo = production
+
             # Simpan sisa jumlah yang belum di-split
             remaining_qty = production.product_qty
 
@@ -137,14 +140,20 @@ class MrpProduction(models.Model):
                 # Tentukan jumlah yang akan di-split pada Work Order saat ini
                 qty_to_create = min(qty_per_work_order, remaining_qty)
 
-                # Buat Work Order baru dengan jumlah yang ditentukan
-                new_work_order = production.copy(default={'product_qty': qty_to_create, 'state': 'confirmed'})
+                # Buat Work Order baru dengan menggunakan referensi MO yang sama
+                new_work_order = self.env['mrp.workorder'].create({
+                    'product_id': production.product_id.id,
+                    'product_qty': qty_to_create,
+                     'product_uom_id': production.product_uom_id.id,
+                    'state': 'confirmed',
+                    'origin': production.name,
+                    'user_id': production.user_id.id,
+                    'date_start': production.date,
+                })
                 new_work_orders += new_work_order
                 # Kurangi sisa jumlah yang belum di-split
                 remaining_qty -= qty_to_create
+
         return new_work_orders
-
-
-
 
 

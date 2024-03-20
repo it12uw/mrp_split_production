@@ -5,7 +5,7 @@ from odoo.tools import float_round, float_compare
 class MrpProductionSplitMulti(models.TransientModel):
     _name = 'mrp.production.split.multi'
     _description = "Wizard to Split Multiple Productions"
-
+ 
     production_ids = fields.One2many('mrp.production.split', 'production_split_multi_id', 'Productions To Split')
 
 
@@ -31,7 +31,7 @@ class MrpProductionSplit(models.TransientModel):
     def _compute_quantity_to_split(self):
         for wizard in self:
             wizard.quantity_to_split = len(wizard.production_detailed_vals_ids)
-    
+
     @api.depends('quantity_to_split')
     def _compute_details(self):
         for wizard in self:
