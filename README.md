@@ -1,9 +1,3 @@
-# mrp_split_production
-Split Production For MRP Odoo 14 Only
+# workorder_lot
 
-<<<<<<< Updated upstream
-***Split Manufacturing Order into smaller Work Order***
-
-=======
-Split Manufacturing Order into smaller Work Order
->>>>>>> Stashed changes
+Odoo 14 Module to split `Work Order` based on `Work Center` capacity using `modulo` to get the remaining quantity. 

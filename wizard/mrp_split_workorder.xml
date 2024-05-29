@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_mrp_production_split_form" model="ir.ui.view">
+            <field name="name">mrp.production.split.form</field>
+            <field name="model">mrp.split.work.order</field>
+            <field name="arch" type="xml">
+                <form string="Split Work Order">
+                    <group>
+                        <field name="production_id" readonly="1"/>
+                        <field name="product_qty" readonly="1"/>
+                        <field name="product_id" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Split Details">
+                            <field name="workorder_ids"/>
+                        </page>
+                        <page string="Other Information">
+                            
+                        </page>
+                    </notebook>
+                    <footer>
+                        <button class="btn btn-outline-info" name="action_split_workorder" string="Split WO" type="object" icon="fa-scissors"/>
+                        <button class="btn btn-outline-primary" string="Discard" special="cancel" data-hotkey="x"/> 
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="action_mrp_production_split_multi" model="ir.actions.act_window">
+            <field name="name">Split productions</field>
+            <field name="res_model">mrp.split.work.order</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

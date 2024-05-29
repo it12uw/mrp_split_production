@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+<template id="report_kkp_pieces">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+
+                       <table class="table table-sm table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                 <th style="background-color:#3498DB; !important;color:#FFF !important;">Document ID</th>
+                                 <th style="background-color:#3498DB; !important;color:#FFF !important;">Page</th>
+                                 <th style="background-color:#3498DB; !important;color:#FFF !important;">Revision No</th>
+                                 <th style="background-color:#3498DB; !important;color:#FFF !important;">Revision Date</th>
+                                 <th style="background-color:#3498DB; !important;color:#FFF !important;">Effective Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <t t-foreach="doc.doc_ids" t-as="msp_doc">
+                            <tr>
+                                <td>
+                                    <span t-field="msp_doc.doc_ids"/>
+                                </td>
+                                <td>
+
+                                </td>
+                                <td>
+
+                                </td>
+                                <td>
+
+                                </td>
+                                <td>
+
+                                </td>
+                            </tr>
+                        </t>
+                        </tbody>
+                       </table>
+
+                        <table class="table table-sm table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="background-color:#3498DB; !important;color:#FFF !important;">Nama Artikel</th>
+                                    <th style="background-color:#3498DB; !important;color:#FFF !important;">Customer</th>
+                                    <th style="background-color:#3498DB; !important;color:#FFF !important;">Style</th>
+                                    <th style="background-color:#3498DB; !important;color:#FFF !important;">Size</th>
+                                    <th style="background-color:#3498DB; !important;color:#FFF !important;">Warna</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <span t-field="doc.product_id"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.partner_id"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.sample_style"/>
+                                    </td>
+                                    <td>
+                                        <!-- <span t-field="doc.sample_size"/> -->
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.warna_sample"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="table table-sm table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="background-color:#3498DB; !important;color:#FFF !important;">No MO</th>
+                                    <th style="background-color:#3498DB; !important;color:#FFF !important;">No SO</th>
+                                    <th style="background-color:#3498DB; !important;color:#FFF !important;">Tanggal Kirim</th>
+                                    <th style="background-color:#3498DB; !important;color:#FFF !important;">Quantity / WO</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span t-field="doc.name"/></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div style="padding-top:10px;">
+                        <table class="table table-sm table-striped table-bordered">
+                            <thead style="display:table-row-group;">
+                               
+                            </thead>
+                            <tbody class="snap_tbody">
+                               
+                            </tbody>
+                            <tfoot class="tabel table-sm table-dark table-bordered" style="display:table-row-group;">
+                              
+                             
+                            </tfoot>
+                        </table>
+                </div>
+                <xpath expr="//p[@t-field='o.notes']" position="after">
+                    <div class="last-page" style="position:relative;font-size:12px;margin-top:100px;">
+                    <table>
+                        <tr>
+                            <td style="line-height: 1.6;" width="85%">
+                                <br/><br/><br/>
+                                <strong>SPV SHIFT</strong>
+                                <br/><br/><br/><br/> <br/><br/><br/>
+                                (..................................)
+                                <br/>
+                                    <br/> 
+                            </td>
+                            <td style="text-align:left" width="20%">
+                                <strong>Yogyakarta, <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d %B %Y')" /></strong>
+                                <br/><br/><br/>
+                                <strong>OPERATOR QC SHUTTLE</strong>
+                                <br/><br/><br/><br/> <br/><br/><br/>
+                                (..................................)
+                                <br/>
+                                    <br/>
+                            </td>
+                        </tr>
+                    </table>
+                    </div>
+                </xpath>                
+            </div>
+        </t>
+        </t>       
+    </t>
+</template>
+
+</odoo>
