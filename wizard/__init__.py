@@ -1,1 +1,1 @@
-from . import mrp_split_workorder
+from . import mrp_production_split
