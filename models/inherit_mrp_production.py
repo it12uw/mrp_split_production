@@ -1,42 +1,41 @@
-import json
-import datetime
-import math
-import re
-
-
 from odoo import _, models, fields
 from odoo.exceptions import UserError
-from collections import defaultdict
-from odoo.exceptions import UserError, ValidationError
-from odoo.tools import float_compare, float_round, float_is_zero, format_datetime
-from odoo.tools.misc import OrderedSet, format_date, groupby as tools_groupby
+
 
 class MrpProduction(models.Model):
     _inherit = "mrp.production"
 
     production_capacity = fields.Float(compute='_compute_production_capacity', help="Quantity that can be produced with the current stock of components")
-    date=fields.Datetime(string="Date")
+    
+    def action_open_workorder_split(self):
+        # Lakukan logika apa pun yang diperlukan sebelum membuka form pemisahan work order
+        # Misalnya, Anda dapat memvalidasi apakah produksi memiliki work order yang bisa dipecah
+        # Jika validasi berhasil, buka form pemisahan work order
+        return {
+            'name': 'Split Work Order',
+            'type': 'ir.actions.act_window',
+            'res_model': 'mrp.workorder.split',
+            'view_mode': 'form',
+            'target': 'new',
+        }
 
-    """Muncul error mrp.production' object has no attribute 'action_split'" while evaluating
-    'action = records.action_split() sehingga kode ini di tambahkan """
+    """action to open to Split Production form"""
+    
     def action_split(self):
         self._pre_action_split_merge_hook(split=True)
         if len(self) > 1:
             productions = [Command.create({'production_id': production.id}) for production in self]
             # Wizard need a real id to have buttons enable in the view
-            wizard = self.env['split_production.production.split.multi'].create({'production_ids': productions})
-            action = self.env['ir.actions.actions']._for_xml_id('split_production.action_mrp_production_split_multi')
+            wizard = self.env['mrp_split_production.production.split.multi'].create({'production_ids': productions})
+            action = self.env['ir.actions.actions']._for_xml_id('mrp_split_production.action_mrp_production_split_multi')
             action['res_id'] = wizard.id
             return action
         else:
-            action = self.env['ir.actions.actions']._for_xml_id('split_production.action_mrp_production_split')
+            action = self.env['ir.actions.actions']._for_xml_id('mrp_split_production.action_mrp_production_split')
             action['context'] = {
                 'default_production_id': self.id,
             }
             return action
-
-    """Muncul error  mrp.production' object has no attribute '_pre_action_split_merge_hook'" while evaluating
-    'action = records.action_split() sehingga kode ini ditambahkan"""
 
     def action_merge(self):
             self._pre_action_split_merge_hook(merge=True)
@@ -117,43 +116,4 @@ class MrpProduction(models.Model):
             if len(set(self.mapped('picking_type_id'))) > 1:
                 raise UserError(_('You can only merge manufacturing with the same operation type'))
             # TODO explode and check no quantity has been edited
-            return True        
-
-    """Muncul error 'mrp.production' object has no attribute '_split_productions' sehingga kode ini ditambahkan"""    
-
-    def _split_productions(self, quantities):
-        new_work_orders = self.env['mrp.production']
-        
-        # Iterasi melalui setiap Manufacturing Order dan jumlah yang ingin di-split
-        for production, quantity in zip(self, quantities):
-            # Hitung jumlah yang akan di-split per Work Order
-            qty_per_work_order = production.product_qty / len(quantities)
-
-            # Simpan referensi MO yang akan digunakan pada Work Order
-            reference_mo = production
-
-            # Simpan sisa jumlah yang belum di-split
-            remaining_qty = production.product_qty
-
-            # Buat Work Order baru dengan jumlah yang ditentukan
-            for i in range(len(quantities)):
-                # Tentukan jumlah yang akan di-split pada Work Order saat ini
-                qty_to_create = min(qty_per_work_order, remaining_qty)
-
-                # Buat Work Order baru dengan menggunakan referensi MO yang sama
-                new_work_order = self.env['mrp.workorder'].create({
-                    'product_id': production.product_id.id,
-                    'product_qty': qty_to_create,
-                     'product_uom_id': production.product_uom_id.id,
-                    'state': 'confirmed',
-                    'origin': production.name,
-                    'user_id': production.user_id.id,
-                    'date_start': production.date,
-                })
-                new_work_orders += new_work_order
-                # Kurangi sisa jumlah yang belum di-split
-                remaining_qty -= qty_to_create
-
-        return new_work_orders
-
-
+            return True    
